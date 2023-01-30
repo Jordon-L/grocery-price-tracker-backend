@@ -1,4 +1,4 @@
-import pkg from 'pg';
+import pkg from "pg";
 const { Pool } = pkg;
 import * as dotenv from "dotenv";
 import * as express from "express";
@@ -116,24 +116,12 @@ async function generateAPIKey(
 }
 
 function authKey(request: express.Request) {
-  if (checkHost(request)) {
-    let api_key = request.header("x-api-key"); //Add API key to headers
-    if(api_key == undefined){
-      return false;
-    }
-    const results = bcrypt.compareSync(api_key, (process.env.hash_key as string));
-    return results;
+  let api_key = request.header("x-api-key"); //Add API key to headers
+  if (api_key == undefined) {
+    return false;
   }
-  return false;
+  const results = bcrypt.compareSync(api_key, process.env.hash_key as string);
+  return results;
 }
-
-function checkHost(request: express.Request) {
-  console.log(request.headers.host );
-  if (request.headers.host == process.env.extensionID) {
-    return true;
-  }
-  return false;
-}
-
 
 export { getPrice, addPrice, generateAPIKey, authKey };
