@@ -5,7 +5,7 @@ import { body} from "express-validator";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const port = 3000;
+const port = 80;
 
 app.get("/", (_req, res) => res.send("Hello World!"));
 
