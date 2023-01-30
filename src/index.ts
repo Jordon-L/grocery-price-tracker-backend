@@ -1,8 +1,16 @@
 import express from "express";
 import { addPrice, generateAPIKey, getPrice } from "./database.js";
 import { body} from "express-validator";
+import cors from 'cors';
+
+const allowedOrigins = ['chrome-extension://kjbcickehfpoejmaiokdagfcbligmelk'];
+
+const options: cors.CorsOptions = {
+  origin: allowedOrigins
+};
 
 const app = express();
+app.use(cors(options));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 3000;
