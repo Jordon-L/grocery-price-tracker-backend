@@ -21,8 +21,8 @@ function getPrice(request: express.Request, response: express.Response) {
     response.status(400).json("bad api key");
     return;
   }
-  const location = request.query.location;
-  const productSKU = request.query.sku;
+  const location = request.params.location;
+  const productSKU = request.params.sku;
   pool.query(
     `SELECT * FROM prices WHERE product_id = (SELECT id from products WHERE product_sku = $1) 
     AND location_id = (SELECT id from locations WHERE location = $2) ORDER BY date DESC`,
