@@ -1,12 +1,18 @@
-import { Pool } from "pg";
+import pkg from 'pg';
+const { Pool } = pkg;
 import * as dotenv from "dotenv";
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
-import { body, validationResult } from "express-validator";
+import { validationResult } from "express-validator";
 dotenv.config();
 
 const pool = new Pool({
+  // user: process.env.user,
+  // host: process.env.host,
+  // database: process.env.database,
+  // password: process.env.password,
+  // port: Number(process.env.port),
   connectionString: process.env.DATABASE_URL,
 });
 
@@ -42,7 +48,8 @@ function addPrice(request: express.Request, response: express.Response) {
     return;
   }
   if (!errors.isEmpty()) {
-    return response.status(400).json({ errors: errors.array() });
+    response.status(400).json({ errors: errors.array() });
+    return;
   }
   const { name, brand, price, productSKU, unit, location, tag } = request.body;
   //check if store location exists
@@ -94,7 +101,7 @@ function addPrice(request: express.Request, response: express.Response) {
 }
 
 async function generateAPIKey(
-  request: express.Request,
+  _request: express.Request,
   response: express.Response
 ) {
   const saltRounds = 10;
@@ -104,7 +111,7 @@ async function generateAPIKey(
   pool.query(
     "INSERT INTO api_keys (user_id, hash_key) VALUES($1, $2)",
     [user_id, hashedToken],
-    (error, results) => {
+    (error, _results) => {
       if (error) {
         throw error;
       }
@@ -116,7 +123,10 @@ async function generateAPIKey(
 function authKey(request: express.Request) {
   if (checkHost(request)) {
     let api_key = request.header("x-api-key"); //Add API key to headers
-    const results = bcrypt.compareSync(api_key, process.env.hash_key);
+    if(api_key == undefined){
+      return false;
+    }
+    const results = bcrypt.compareSync(api_key, (process.env.hash_key as string));
     return results;
   }
   return false;

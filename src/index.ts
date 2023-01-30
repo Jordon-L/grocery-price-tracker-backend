@@ -1,5 +1,5 @@
-import * as express from "express";
-import { addPrice, generateAPIKey, getPrice } from "./database";
+import express from "express";
+import { addPrice, generateAPIKey, getPrice } from "./database.js";
 import { body} from "express-validator";
 
 const app = express();
@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = 3000;
 
-app.get("/", (req, res) => res.send("Hello World!"));
+app.get("/", (_req, res) => res.send("Hello World!"));
 
 app.get("/api/new", generateAPIKey);
 
