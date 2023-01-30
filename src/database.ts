@@ -17,17 +17,12 @@ const pool = new Pool({
 });
 
 function getPrice(request: express.Request, response: express.Response) {
-  const errors = validationResult(request);
   if (!authKey(request)) {
     response.status(400).json("bad api key");
     return;
   }
-  if (!errors.isEmpty()) {
-    response.status(400).json({ errors: errors.array() });
-    return;
-  }
-  const { productSKU, location } = request.body;
-
+  const location = request.query.location;
+  const productSKU = request.query.sku;
   pool.query(
     `SELECT * FROM prices WHERE product_id = (SELECT id from products WHERE product_sku = $1) 
     AND location_id = (SELECT id from locations WHERE location = $2) ORDER BY date DESC`,
@@ -101,11 +96,11 @@ function addPrice(request: express.Request, response: express.Response) {
 }
 
 async function generateAPIKey(
-  _request: express.Request,
+  request: express.Request,
   response: express.Response
 ) {
+  const { user_id } = request.body;
   const saltRounds = 10;
-  const user_id = crypto.randomUUID();
   const api_key = crypto.randomUUID();
   const hashedToken = await bcrypt.hash(api_key, saltRounds);
   pool.query(

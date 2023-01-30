@@ -12,11 +12,7 @@ app.get("/", (_req, res) => res.send("Hello World!"));
 app.get("/api/new", generateAPIKey);
 
 app.get(
-  "/api/price",
-  body(["productSKU", "location"]).exists({
-    checkNull: true,
-    checkFalsy: true,
-  }),
+  "/api/price/:location/:sku",
   getPrice
 );
 
@@ -29,11 +25,6 @@ app.post(
   addPrice
 );
 
-app.post("api/:sku");
-
-app.put("api/price/:sku");
-
-app.delete("api/price/:sku");
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
