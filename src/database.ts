@@ -23,6 +23,7 @@ function getPrice(request: express.Request, response: express.Response) {
   }
   const location = request.params.location;
   const productSKU = request.params.sku;
+  console.log(location, productSKU);
   pool.query(
     `SELECT * FROM prices WHERE product_id = (SELECT id from products WHERE product_sku = $1) 
     AND location_id = (SELECT id from locations WHERE location = $2) ORDER BY date DESC`,
@@ -117,6 +118,7 @@ async function generateAPIKey(
 
 function authKey(request: express.Request) {
   let api_key = request.header("x-api-key"); //Add API key to headers
+  console.log(api_key);
   if (api_key == undefined) {
     return false;
   }
