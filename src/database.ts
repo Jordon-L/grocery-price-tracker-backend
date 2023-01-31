@@ -122,6 +122,7 @@ function authKey(request: express.Request) {
   if (api_key == undefined) {
     return false;
   }
+  console.log(process.env.hash_key);
   const results = bcrypt.compareSync(api_key, process.env.hash_key as string);
   return results;
 }
