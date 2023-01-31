@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
-import { validationResult } from "express-validator";
+import {validationResult } from "express-validator";
 dotenv.config();
 
 const pool = new Pool({
@@ -16,8 +16,10 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-function getPrice(request: express.Request, response: express.Response) {
-  if (!authKey(request)) {
+async function getPrice(request: express.Request, response: express.Response) {
+  const auth = await authKey(request)
+  console.log("auth", auth);
+  if (!auth) {
     response.status(400).json("bad api key");
     return;
   }
@@ -37,9 +39,11 @@ function getPrice(request: express.Request, response: express.Response) {
   );
 }
 
-function addPrice(request: express.Request, response: express.Response) {
+async function addPrice(request: express.Request, response: express.Response) {
   const errors = validationResult(request);
-  if (!authKey(request)) {
+  const auth = await authKey(request)
+  console.log("auth", auth);
+  if (!auth) {
     response.status(400).json("bad api key");
     return;
   }
@@ -115,16 +119,32 @@ async function generateAPIKey(
     }
   );
 }
+async function waitForApiKey() {
+  return new Promise((resolve) => {
+    pool.query(
+      "Select * FROM api_keys",
+      [],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        return resolve(results.rows[0]);
+      }
+    );
+  });
+}
 
-function authKey(request: express.Request) {
+async function authKey(request: express.Request) {
   let api_key = request.header("x-api-key"); //Add API key to headers
   console.log(api_key);
-  if (api_key == undefined) {
-    return false;
-  }
-  console.log(process.env.hash_key);
-  const results = bcrypt.compareSync(api_key, process.env.hash_key as string);
-  return results;
+  return await waitForApiKey().then((value: any) => {
+    if (api_key == undefined) {
+      return false;
+    }
+    const results = bcrypt.compareSync(api_key, value.hash_key as string);
+    console.log(results);
+    return results;
+  })
 }
 
 export { getPrice, addPrice, generateAPIKey, authKey };
