@@ -18,14 +18,12 @@ const pool = new Pool({
 
 async function getPrice(request: express.Request, response: express.Response) {
   const auth = await authKey(request)
-  console.log("auth", auth);
   if (!auth) {
     response.status(400).json("bad api key");
     return;
   }
   const location = request.params.location;
   const productSKU = request.params.sku;
-  console.log(location, productSKU);
   pool.query(
     `SELECT * FROM prices WHERE product_id = (SELECT id from products WHERE product_sku = $1) 
     AND location_id = (SELECT id from locations WHERE location = $2) ORDER BY date DESC`,
@@ -42,7 +40,6 @@ async function getPrice(request: express.Request, response: express.Response) {
 async function addPrice(request: express.Request, response: express.Response) {
   const errors = validationResult(request);
   const auth = await authKey(request)
-  console.log("auth", auth);
   if (!auth) {
     response.status(400).json("bad api key");
     return;
@@ -136,13 +133,11 @@ async function waitForApiKey() {
 
 async function authKey(request: express.Request) {
   let api_key = request.header("x-api-key"); //Add API key to headers
-  console.log(api_key);
   return await waitForApiKey().then((value: any) => {
     if (api_key == undefined) {
       return false;
     }
     const results = bcrypt.compareSync(api_key, value.hash_key as string);
-    console.log(results);
     return results;
   })
 }

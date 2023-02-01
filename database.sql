@@ -58,8 +58,8 @@ BEGIN
     AND location_id = NEW.location_id
     AND date = latest_date;
     RETURN NULL;
-  ELSE
-    -- Update the price for a different value
+  ELSIF latest_date = NEW.date THEN
+    -- Update the price if date is same
     UPDATE prices
     SET price = NEW.price, last_updated = NEW.last_updated
     WHERE product_id = NEW.product_id
