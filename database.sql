@@ -5,7 +5,7 @@ CREATE TABLE locations(
 
 CREATE TABLE products(
   id SERIAL PRIMARY KEY,    
-  name VARCHAR(50) NOT NULL,
+  name VARCHAR(100) NOT NULL,
   brand VARCHAR(30) NOT NULL,
   product_sku VARCHAR(25) NOT NULL UNIQUE
 );
