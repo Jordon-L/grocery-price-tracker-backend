@@ -35,35 +35,30 @@ VALUES ('Grandview'), ('Burnaby'),
 ('Richmond'), ('Coquitlam'), ('Delta'), ('Surrey');
 
 ALTER TABLE prices
-ADD CONSTRAINT prices_unique UNIQUE (product_id, location_id, date);
+ADD CONSTRAINT prices_unique UNIQUE (product_id, location_id, date, tag);
 
 CREATE OR REPLACE FUNCTION prevent_duplicate_price()
 RETURNS TRIGGER AS $$
 DECLARE
   latest_price NUMERIC(5, 2);
   latest_date DATE;
+  latest_tag VARCHAR(10);
 BEGIN
-  SELECT price, date INTO latest_price, latest_date
+  SELECT price, date, tag INTO latest_price, latest_date, latest_tag
   FROM prices
   WHERE product_id = NEW.product_id
   AND location_id = NEW.location_id
+  AND tag = NEW.tag
   ORDER BY date DESC
   LIMIT 1;
 
-  IF latest_price = NEW.price THEN
-    -- Update the existing row with the latest date
-    UPDATE prices
-    SET last_updated = NEW.last_updated
-    WHERE product_id = NEW.product_id
-    AND location_id = NEW.location_id
-    AND date = latest_date;
-    RETURN NULL;
-  ELSIF latest_date = NEW.date THEN
+  IF latest_date = NEW.date THEN
     -- Update the price if date is same
     UPDATE prices
     SET price = NEW.price, last_updated = NEW.last_updated
     WHERE product_id = NEW.product_id
     AND location_id = NEW.location_id
+    AND tag = NEW.tag
     AND date = latest_date;
     RETURN NULL;
   END IF;

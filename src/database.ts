@@ -67,6 +67,9 @@ async function addPrice(request: express.Request, response: express.Response) {
       }
       const locationID = results.rows[0].id;
       const date = new Date();
+      const pstDate = date.toLocaleString("en-US", {
+        timeZone: "America/Los_Angeles"
+      })
       pool.query(
         `WITH new_product AS (
           INSERT INTO products (name, brand, product_sku)
@@ -82,11 +85,11 @@ async function addPrice(request: express.Request, response: express.Response) {
           brand,
           productSKU,
           locationID,
-          date,
+          pstDate,
           Number(price),
           unit,
           tag,
-          date,
+          pstDate,
         ],
         (error, results) => {
           if (error) {
