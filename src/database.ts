@@ -32,7 +32,11 @@ async function getPrice(request: express.Request, response: express.Response) {
       if (error) {
         throw error;
       }
-      response.status(200).json(results.rows);
+      let data = results.rows
+      const regularPrice = data.filter(elm => elm.tag == "regular" || elm.tag == "sale");
+      const limitPrice = data.filter(elm => elm.tag == "limit");
+      const multiPrice = data.filter(elm => elm.tag == "multi");
+      response.status(200).json({regularPrice, limitPrice, multiPrice});
     }
   );
 }
