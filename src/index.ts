@@ -17,7 +17,7 @@ const port = process.env.PORT || 3000;
 
 app.get("/", (_req, res) => res.send("Hello World!"));
 
-app.get("/api/new", generateAPIKey);
+//app.get("/api/new", generateAPIKey);
 
 app.get(
   "/api/price/:location/:sku",
