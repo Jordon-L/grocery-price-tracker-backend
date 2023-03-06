@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 import * as express from "express";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
-import {validationResult } from "express-validator";
+import { validationResult } from "express-validator";
 dotenv.config();
 
 const pool = new Pool({
@@ -17,7 +17,7 @@ const pool = new Pool({
 });
 
 async function getPrice(request: express.Request, response: express.Response) {
-  const auth = await authKey(request)
+  const auth = await authKey(request);
   if (!auth) {
     response.status(400).json("bad api key");
     return;
@@ -32,18 +32,20 @@ async function getPrice(request: express.Request, response: express.Response) {
       if (error) {
         throw error;
       }
-      let data = results.rows
-      const regularPrice = data.filter(elm => elm.tag == "regular" || elm.tag == "sale");
-      const limitPrice = data.filter(elm => elm.tag == "limit");
-      const multiPrice = data.filter(elm => elm.tag == "multi");
-      response.status(200).json({regularPrice, limitPrice, multiPrice});
+      let data = results.rows;
+      const regularPrice = data.filter(
+        (elm) => elm.tag == "regular" || elm.tag == "sale"
+      );
+      const limitPrice = data.filter((elm) => elm.tag == "limit");
+      const multiPrice = data.filter((elm) => elm.tag == "multi");
+      response.status(200).json({ regularPrice, limitPrice, multiPrice });
     }
   );
 }
 
 async function addPrice(request: express.Request, response: express.Response) {
   const errors = validationResult(request);
-  const auth = await authKey(request)
+  const auth = await authKey(request);
   if (!auth) {
     response.status(400).json("bad api key");
     return;
@@ -101,6 +103,42 @@ async function addPrice(request: express.Request, response: express.Response) {
   );
 }
 
+async function addProduct(
+  request: express.Request,
+  response: express.Response
+) {
+  const errors = validationResult(request);
+  const auth = await authKey(request);
+  if (!auth) {
+    response.status(400).json("bad api key");
+    return;
+  }
+  if (!errors.isEmpty()) {
+    response.status(400).json({ errors: errors.array() });
+    return;
+  }
+  const { name, brand, productSKU, link } = request.body;
+  pool.query(
+    `WITH new_product AS (
+          INSERT INTO products (name, brand, product_sku, link)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (product_sku) DO UPDATE
+            SET name = excluded.name
+            SET link = excluded.link
+          RETURNING id
+        )`,
+    [name, brand, productSKU, link],
+    (error, results) => {
+      if (error) {
+        response.status(500).json("Internal Server Error");
+        throw error;
+      } else {
+        response.status(200).json(results.rows);
+      }
+    }
+  );
+}
+
 async function generateAPIKey(
   request: express.Request,
   response: express.Response
@@ -122,16 +160,12 @@ async function generateAPIKey(
 }
 async function waitForApiKey() {
   return new Promise((resolve) => {
-    pool.query(
-      "Select * FROM api_keys",
-      [],
-      (error, results) => {
-        if (error) {
-          throw error;
-        }
-        return resolve(results.rows[0]);
+    pool.query("Select * FROM api_keys", [], (error, results) => {
+      if (error) {
+        throw error;
       }
-    );
+      return resolve(results.rows[0]);
+    });
   });
 }
 
@@ -143,7 +177,7 @@ async function authKey(request: express.Request) {
     }
     const results = bcrypt.compareSync(api_key, value.hash_key as string);
     return results;
-  })
+  });
 }
 
-export { getPrice, addPrice, generateAPIKey, authKey };
+export { getPrice, addPrice, generateAPIKey, authKey, addProduct };

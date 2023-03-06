@@ -1,5 +1,5 @@
 import express from "express";
-import { addPrice, generateAPIKey, getPrice } from "./database.js";
+import { addPrice, generateAPIKey, getPrice, addProduct} from "./database.js";
 import { body} from "express-validator";
 import cors from 'cors';
 
@@ -33,6 +33,14 @@ app.post(
   addPrice
 );
 
+app.post(
+  "/api/product",
+  body(["name", "brand", "productSKU", "link"]).exists({
+    checkNull: true,
+    checkFalsy: true,
+  }),
+  addProduct
+);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
