@@ -1,5 +1,5 @@
 import express from "express";
-import { addPrice, generateAPIKey, getPrice, addProduct} from "./database.js";
+import { addPrice, getPrice, addProduct} from "./database.js";
 import { body} from "express-validator";
 import cors from 'cors';
 
