@@ -119,14 +119,11 @@ async function addProduct(
   }
   const { name, brand, productSKU, link } = request.body;
   pool.query(
-    `WITH new_product AS (
-          INSERT INTO products (name, brand, product_sku, link)
+    `INSERT INTO products (name, brand, product_sku, link)
           VALUES ($1, $2, $3, $4)
           ON CONFLICT (product_sku) DO UPDATE
             SET name = excluded.name
-            SET link = excluded.link
-          RETURNING id
-        )`,
+            SET link = excluded.link`,
     [name, brand, productSKU, link],
     (error, results) => {
       if (error) {
