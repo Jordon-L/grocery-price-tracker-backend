@@ -122,8 +122,8 @@ async function addProduct(
     `INSERT INTO products (name, brand, product_sku, link)
           VALUES ($1, $2, $3, $4)
           ON CONFLICT (product_sku) DO UPDATE
-            SET name = excluded.name
-            SET link = excluded.link`,
+            SET name = excluded.name,
+            link = excluded.link`,
     [name, brand, productSKU, link],
     (error, results) => {
       if (error) {
