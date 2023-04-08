@@ -3,7 +3,7 @@ import { addPrice, getPrice, addProduct} from "./database.js";
 import { body} from "express-validator";
 import cors from 'cors';
 
-const allowedOrigins = ['chrome-extension://kjbcickehfpoejmaiokdagfcbligmelk'];
+const allowedOrigins = ['chrome-extension://jihjamaohdnacpmoaledjonbdckcbfgj'];
 
 const options: cors.CorsOptions = {
   origin: allowedOrigins
